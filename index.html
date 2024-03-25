@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="A project to utilize differentialbe rendering to optimize the latent code from DeepSDF. ">
+  <meta name="keywords" content="DeepSDF, 3D Content Creation">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sketch2Shape</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/icon.png">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+
+<!-- <nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+  <div class="navbar-menu">
+    <div class="navbar-start" style="flex-grow: 1; justify-content: center;">
+      <a class="navbar-item" href="https://robinborth.github.io/Sketch2Shape/">
+      <span class="icon">
+          <i class="fas fa-home"></i>
+      </span>
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          More Research
+        </a>
+        <div class="navbar-dropdown">
+          <a class="navbar-item" href="https://github.com/robinborth/VL3DNet">
+            VL3DNet
+          </a>
+          <a class="navbar-item" href="https://github.com/robinborth/Sketch2Shape">
+            Sketch2Shape
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</nav> -->
+
+
+<section class="hero">
+  <div class="hero-body" style="padding-bottom: 0; z-index: 2;">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">Sketch2Shape: Single-View Sketch-Based 3D Reconstruction via Multi-View Differentiable Rendering</h1>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">
+              <a href="https://github.com/robinborth">Robin Borth</a><sup>1</sup>,</span>
+            <span class="author-block">
+              <a href="https://danielkorth.io">Daniel Korth</a><sup>1</sup></span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"><sup>1</sup>Technical University of Munich</span>
+          </div>
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="./static/report/report.pdf"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Report</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/robinborth/Sketch2Shape"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                  </a>
+              </span>
+              <!-- Video Link. -->
+              <span class="link-block">
+                <a href="./static/videos/sketch_demo.mp4"
+                    class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top: 0; padding-bottom: 0; margin-top: -10%; margin-bottom: -10%; z-index: 1;">
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-four-fifths">
+      <div class="publication-video">
+        <video poster="" id="toby" autoplay muted loop playsinline height="100%">
+          <source src="./static/videos/thumbnail.mp4"
+                  type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+
+
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            In recent years, the creation and manipulation of 3D objects
+            have gained prominence in numerous sectors, from entertainment
+            over interior design to manufacturing. Building
+            on the universal nature of sketches, we present a pipeline
+            that can generate 3D objects from 2D sketches. 
+            (1) Our approach uses
+            an view-agnostic encoder to map a single-view hand-drawn
+            sketch into the DeepSDF latent space. (2) We use the DeepSDF auto-decoder & differentiable sphere tracing to optimize the latent vector on multi-view
+            silhouettes. (3) Once the final latent vector is found, we can obtain our shape by extracting SDF values on a grid structure and running the
+            marching cubes algorithm
+            Our method outperforms a
+            retrieval baseline and allows for interactive editing of the
+            shape during the generation process.
+          </p>
+        </div>
+      </div>
+    </div>
+</section>
+
+<section class="section" style="z-index: 5;">
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-four-fifths">
+      <div class="column is-four-fifths" style="position: relative; margin-left: auto; margin-right: auto;">
+        <img src="./static/images/model_architecture.jpg" height="100%"/>
+      </div>
+  </div>
+</div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Real-Time Sketch Application</h2>
+        <div class="content has-text-justified">
+          <p>
+            The view-agnostic
+            encoder should make it easier for artists to not restrict their
+            creativity by constraining them to sketch from a specific
+            view or provide exact view information of the sketch.
+            Additionally, our approach facilitates an interactive workflow, enabling artists to generate content in real-time, 
+            thus enhancing the immediacy and responsiveness of the creative process.
+          </p>
+        </div>
+      </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="publication-video">
+          <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+            <source src="./static/videos/sketch_demo.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Live-Editing via Differentiable Rendering</h2>
+        <div class="content has-text-justified">
+          <p>
+            Our approach allows for live editing by manipulating the
+            silhouettes after the initial shape has been generated. We
+            accomplish this by developing an interactive painting tool
+            that allows artists to paint over the silhouette to either add
+            or remove geometry or introduce new features not originally
+            present. The modified silhouette can be utilized for differentiable rendering.
+            This editing functionality is applicable
+            for both single and multiple views.
+          </p>
+        </div>
+      </div>
+    </div>
+</section>
+
+<section class="section">
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-four-fifths">
+      <div class="publication-video">
+        <video poster="" id="toby" autoplay controls muted loop playsinline height="100%">
+          <source src="./static/videos/edit_demo.mp4"
+                  type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Qualitative Live-Editing Results</h2>
+        <div class="content has-text-justified">
+          <p>
+            At the top are rendered normal images, displaying the initial latent code generated from the encoder and rendered using our differentiable share tracer.
+            These images serve as the starting point for our interactive workflow. 
+            Next to the normal images are the single or multi-view editings.
+            Below the edited images are the reconstructed 3D meshes, optimized using differentiable rendering based on the silhouettes from the editing. 
+            Our approach can accurately recover shapes from the edited images, showcasing the fidelity and robustness in capturing and refining details.
+            Notably, in cases where the initial shape is incorrect, such as the chair on the right, our optimization process faces challenges due to constraints within the latent space.
+            Despite these limitations, our method demonstrates remarkable capability in shape recovery and creative expression, underscoring its potential for diverse applications in art and design.
+          </p>
+        </div>
+      </div>
+    </div>
+</section>
+
+
+<section class="section" style="margin-bottom: -7%;">
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-four-fifths">
+      <div class="publication-video">
+        <video poster="" id="toby" autoplay muted loop playsinline height="100%">
+          <source src="./static/videos/edit_result.mp4"
+                  type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="section" style="z-index: 2;">
+  <div class="container is-max-desktop" style="z-index: 2;">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Multi-View Robustness</h2>
+        <div class="content has-text-justified">
+          <p>
+            A crucial characteristic of our encoder is that we train it to be view-agnostic.
+            While different views may result in approximately similar shapes, achieving perfect consistency across all views remains unattainable.
+            Due to the inherent ambiguity in sketches, it remains uncertain whether perfect view-robustness is feasible.
+          </p>
+        </div>
+      </div>
+    </div>
+</section>
+
+<section class="section" style="margin-bottom: -12%; margin-top: -15%; z-index: 1;">
+  <div class="columns is-centered has-text-centered">
+    <div class="column is-four-fifths">
+      <div class="publication-video">
+        <video poster="" id="toby" autoplay muted loop playsinline height="100%">
+          <source src="./static/videos/view_robustness.mp4"
+                  type="video/mp4">
+        </video>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{borth2024sketch2shape,
+  author    = {Robin Borth, Daniel Korth},
+  title     = {Sketch2Shape: Single-View Sketch-Based 3D Reconstruction via Multi-View Differentiable Rendering},
+  year      = {2024},
+}</code></pre>
+  </div>
+</section>
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        Website inspired by <a href="https://keunhong.com/">Keunhong Park</a>'s <a href="https://nerfies.github.io/">Nerfies website</a>.
+      </p> 
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
